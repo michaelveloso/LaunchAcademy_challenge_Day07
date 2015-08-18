@@ -1,5 +1,5 @@
 var gameInfo, teams, league, games;
-var makeTeams, improveGames, parseGames, rankTeams, printLeaderboard;
+var makeTeams, improveGames, parseGames, rankTeams, printLeaderboard, teamSummaries;
 
 gameInfo = function(){
   return [
@@ -46,7 +46,7 @@ getTeamNames = function(games){
 }
 
 makeTeams = function(team_names){
-  var teams, add_win, add_loss;
+  var teams, add_win, add_loss, summary;
 
   add_win = function(){
     this.wins++;
@@ -54,6 +54,21 @@ makeTeams = function(team_names){
 
   add_loss = function(){
     this.losses++;
+  };
+
+  summary = function(){
+    var summary_string = "";
+    summary_string += "Name: " + this.name + "\n";
+    summary_string += "Record: " + this.wins + "-" + this.losses + "\n";
+    summary_string += "Ranking: " + this.ranking + "\n";
+    for (var i = 0; i < this.games.length; i++) {
+      var this_game = this.games[i];
+      summary_string += "Game " + (i + 1) + ": ";
+      summary_string += this_game.winner() + " d. " + this_game.loser() + " ";
+      summary_string += this_game.winning_score() + " - " + this_game.losing_score() + "\n";
+    }
+    summary_string += "\n";
+    return summary_string;
   };
 
   teams = [];
@@ -66,6 +81,7 @@ makeTeams = function(team_names){
       games: [],
       add_win: add_win,
       add_loss: add_loss,
+      summary: summary
     });
   }
   return teams;
@@ -120,11 +136,13 @@ parseGames = function(games, teams){
     for (var j = 0; j < teams.length; j++) {
       if (teams[j].name === winner) {
         teams[j].add_win();
+        teams[j].games.push(games[i]);
       };
     };
     for (var j = 0; j < teams.length; j++) {
       if (teams[j].name === loser) {
         teams[j].add_loss();
+        teams[j].games.push(games[i]);
       };
     };
   };
@@ -167,6 +185,15 @@ printLeaderboard = function(teams) {
   leaderboard_string += "--------------------------------------------\n";
   return leaderboard_string;
 }
+
+teamSummaries = function(teams) {
+  var summary_string = "";
+  for (var i = 0; i < teams.length; i++) {
+    summary_string += teams[i].summary();
+  };
+  return summary_string;
+}
+
 //main program
 games = gameInfo();
 team_names = getTeamNames(games);
@@ -176,3 +203,4 @@ parseGames(games, teams);
 rankTeams(teams);
 leaderboard = printLeaderboard(teams);
 console.log(leaderboard);
+console.log(teamSummaries(teams));
