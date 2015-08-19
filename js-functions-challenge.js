@@ -1,5 +1,5 @@
 var gameInfo, teams, league, games;
-var makeTeams, improveGames, parseGames, rankTeams, printLeaderboard, teamSummaries;
+var constructTeam, makeTeams, constructGames, parseGames, rankTeams, printLeaderboard, teamSummaries;
 
 gameInfo = function(){
   return [
@@ -45,8 +45,8 @@ getTeamNames = function(games){
   return team_names;
 }
 
-makeTeams = function(team_names){
-  var teams, add_win, add_loss, summary;
+constructTeam = function(team_name) {
+  var team, add_win, add_loss, summary;
 
   add_win = function(){
     this.wins++;
@@ -71,23 +71,31 @@ makeTeams = function(team_names){
     return summary_string;
   };
 
+  team = {
+    name: team_name,
+    wins: 0,
+    losses: 0,
+    ranking: undefined,
+    games: [],
+    add_win: add_win,
+    add_loss: add_loss,
+    summary: summary
+  };
+
+  return team;
+}
+
+makeTeams = function(team_names){
+  var teams
+
   teams = [];
   for (var i = 0; i < team_names.length; i++) {
-    teams.push({
-      name: team_names[i],
-      wins: 0,
-      losses: 0,
-      ranking: undefined,
-      games: [],
-      add_win: add_win,
-      add_loss: add_loss,
-      summary: summary
-    });
+    teams.push(constructTeam(team_names[i]));
   }
   return teams;
 }
 
-improveGames = function(games){
+constructGames = function(games){
 
   var winner = function(){
     if (this.home_score > this.away_score) {
@@ -198,9 +206,8 @@ teamSummaries = function(teams) {
 games = gameInfo();
 team_names = getTeamNames(games);
 teams = makeTeams(team_names);
-improveGames(games);
+constructGames(games);
 parseGames(games, teams);
-rankTeams(teams);
 leaderboard = printLeaderboard(teams);
 console.log(leaderboard);
 console.log(teamSummaries(teams));
